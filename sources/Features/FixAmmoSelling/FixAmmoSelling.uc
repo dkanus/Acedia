@@ -170,6 +170,21 @@ public function OnDisabled()
     }
 }
 
+//  Checks if given class is a one of our pickup replacer classes.
+public static final function bool IsReplacer(class<Actor> pickupClass)
+{
+    local int i;
+    if (pickupClass == none) return false;
+    for (i = 0; i < default.rules.length; i += 1)
+    {
+        if (pickupClass == default.rules[i].pickupReplacement)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 //  1. Checks if weapon can be abused and if it can, - fixes the problem.
 //  2. Starts tracking abusable weapon to detect when player buys ammo for it.
 public final function FixWeapon(KFWeapon potentialAbuser)

@@ -23,6 +23,15 @@ class MutatorListener_FixAmmoSelling extends MutatorListenerBase
 
 static function bool CheckReplacement(Actor other, out byte isSuperRelevant)
 {
+    if (other == none) return true;
+
+    //      We need to replace pickup classes back,
+    //  as they might not even exist on clients.
+    if (class'FixAmmoSelling'.static.IsReplacer(other.class))
+    {
+		ReplacePickupWith(Pickup(other));
+        return false;
+    }
     CheckAbusableWeapon(KFWeapon(other));
     CheckAmmoPickup(KFAmmoPickup(other));
     return true;
@@ -41,6 +50,50 @@ private static final function CheckAmmoPickup(KFAmmoPickup newAmmoPickup)
 {
     if (newAmmoPickup == none) return;
     class'AmmoPickupStalker'.static.StalkAmmoPickup(newAmmoPickup);
+}
+
+//      This function recreates the logic of 'KFWeapon.DropFrom()',
+//  since standard 'ReplaceWith' function produces bad results.
+private static function ReplacePickupWith(Pickup oldPickup)
+{
+    local Pawn      instigator;
+    local Pickup    newPickup;
+    local KFWeapon  relevantWeapon;
+    if (oldPickup == none)              return;
+    instigator = oldPickup.instigator;
+    if (instigator == none)             return;
+    relevantWeapon = GetWeaponOfClass(instigator, oldPickup.inventoryType);
+    if (relevantWeapon == none)         return;
+
+    newPickup = relevantWeapon.Spawn(   relevantWeapon.default.pickupClass,,,
+                                        relevantWeapon.location);
+    newPickup.InitDroppedPickupFor(relevantWeapon);
+    newPickup.velocity = relevantWeapon.velocity +
+        Vector(instigator.rotation) * 100;
+    if (instigator.health > 0)
+        KFWeaponPickup(newPickup).bThrown = true;
+}
+
+//  TODO: this is code duplication, some sort of solution is needed
+static final function KFWeapon GetWeaponOfClass
+(
+    Pawn                playerPawn,
+    class<Inventory>    weaponClass
+)
+{
+    local Inventory invIter;
+    if (playerPawn == none) return none;
+
+    invIter = playerPawn.inventory;
+    while (invIter != none)
+    {
+        if (invIter.class == weaponClass)
+        {
+            return KFWeapon(invIter);
+        }
+        invIter = invIter.inventory;
+    }
+    return none;
 }
 
 defaultproperties
