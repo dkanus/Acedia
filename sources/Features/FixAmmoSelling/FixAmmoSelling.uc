@@ -77,7 +77,7 @@ class FixAmmoSelling extends Feature;
  *      The only possible problem is that part of the ammo cost is
  *  taken with a slight delay, which leaves cheaters a window of opportunity
  *  to buy more than they can afford.
- *  This issue is addressed by each ammo type costing as much as possible
+ *  This issue is addressed by each ammo type costing as little as possible
  *  (its' cost for corresponding perk at lvl6)
  *  and a flag that does allow players to go into negative dosh values
  *  (the cost is potential bugs in this fix itself, that
