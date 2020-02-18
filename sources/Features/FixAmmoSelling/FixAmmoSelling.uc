@@ -368,5 +368,4 @@ defaultproperties
     rules(9)=(abusableWeapon=class'KFMod.SeekerSixRocketLauncher',pickupReplacement=class'FixAmmoSellingClass_SeekerSixPickup')
     //  Listeners
     requiredListeners(0) = class'MutatorListener_FixAmmoSelling'
-    requiredListeners(1) = class'BroadcastListenerBase'
 }
