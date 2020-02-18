@@ -38,6 +38,7 @@ defaultproperties
     features(4) = class'FixAmmoSelling'
     features(5) = class'FixSpectatorCrash'
     features(6) = class'FixDualiesCost'
+    features(7) = class'FixInventoryAbuse'
     //  Listeners
     requiredListeners(0) = class'MutatorListener_Connection'
 }
