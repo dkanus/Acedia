@@ -10,10 +10,10 @@
  *
  *      This feature fixes this problem by setting 'pickupClass' variable in
  *  potentially abusable weapons to our own value that won't receive a discount.
- *  Luckily for us, discount checks are the only place where variable is
- *  directly checked in a vanilla game's code
+ *  Luckily for us, it seems that pickup spawn and discount checks are the only
+ *  two place where variable is directly checked in a vanilla game's code
  *  ('default.pickupClass' is used everywhere else),
- *  so we can easily deal with the only side effect of such change.
+ *  so we can easily deal with the side effects of such change.
  *      Copyright 2020 Anton Tarasenko
  *------------------------------------------------------------------------------
  * This file is part of Acedia.
@@ -45,13 +45,16 @@ class FixAmmoSelling extends Feature;
  *  This change already completely fixes ammo printing.
  *      Possible concern with changing the value of 'pickupClass' is that
  *  it might affect gameplay in too many ways.
- *  But, luckily for us, that value is only used in 'ServerBuyAmmo'
- *  function of 'KFPawn' (all the other places use it's default value instead).
- *  This means that the only side-effect of our change is that ammo will be
- *  sold at a different (lower for us) price, while trader would still display
- *  and require the original price. This problem is solved by manually taking
- *  from player the difference between what he should have had to pay
- *  and what he actually paid.
+ *  But, luckily for us, that value is only used when spawning a new pickup and
+ *  in 'ServerBuyAmmo' function of 'KFPawn'
+ *  (all the other places use it's default value instead).
+ *  This means that the only two side-effects of our change are:
+ *      1. That wrong pickup class will be spawned. This problem is easily
+ *          solved by replacing spawned actor in 'CheckReplacement'.
+ *      2. That ammo will be sold at a different (lower for us) price,
+ *          while trader would still display and require the original price.
+ *          This problem is solved by manually taking from player the difference
+ *          between what he should have had to pay and what he actually paid.
  *      This brings us to the second issue -
  *  detecting when player bought the ammo.
  *  Unfortunately, it doesn't seem possible to detect with 100% certainty
