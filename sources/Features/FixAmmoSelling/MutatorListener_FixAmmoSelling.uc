@@ -33,7 +33,8 @@ static function bool CheckReplacement(Actor other, out byte isSuperRelevant)
         return false;
     }
     CheckAbusableWeapon(KFWeapon(other));
-    CheckAmmoPickup(KFAmmoPickup(other));
+    //  If it's ammo pickup - we need to stalk it
+    class'AmmoPickupStalker'.static.StalkAmmoPickup(KFAmmoPickup(other));
     return true;
 }
 
@@ -44,12 +45,6 @@ private static function CheckAbusableWeapon(KFWeapon newWeapon)
     ammoSellingFix = FixAmmoSelling(class'FixAmmoSelling'.static.GetInstance());
     if (ammoSellingFix == none) return;
     ammoSellingFix.FixWeapon(newWeapon);
-}
-
-private static final function CheckAmmoPickup(KFAmmoPickup newAmmoPickup)
-{
-    if (newAmmoPickup == none) return;
-    class'AmmoPickupStalker'.static.StalkAmmoPickup(newAmmoPickup);
 }
 
 //      This function recreates the logic of 'KFWeapon.DropFrom()',
