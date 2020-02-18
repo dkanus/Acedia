@@ -37,6 +37,7 @@ defaultproperties
     features(3) = class'FixInfiniteNades'
     features(4) = class'FixAmmoSelling'
     features(5) = class'FixSpectatorCrash'
+    features(6) = class'FixDualiesCost'
     //  Listeners
     requiredListeners(0) = class'MutatorListener_Connection'
 }
