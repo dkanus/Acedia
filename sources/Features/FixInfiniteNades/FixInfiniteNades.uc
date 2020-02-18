@@ -60,7 +60,7 @@ var private array<FragAmmoRecord> ammoRecords;
 
 public function OnEnabled()
 {
-    local Frag  nextFrag;
+    local Frag nextFrag;
     //  Find all frags, that spawned when this fix wasn't running.
     foreach level.DynamicActors(class'KFMod.Frag', nextFrag)
     {
