@@ -54,7 +54,7 @@ This feature attempts to prevent server crashes caused by someone quickly switch
 
 ### [NEW] Fix for friendly fire hack
 
-This feature fixes a bug that can allow players to bypass server's friendly fire limitations and teamkill. Usual fixes apply friendly fire scale to suspicious damage themselves, which also disables some of the environmental damage. In oder to avoid that, this fix allows server owner to define precisely to what damage types to apply the friendly fire scaling. It should be all damage types related to projectiles.
+This feature fixes a bug that can allow players to bypass server's friendly fire limitations and teamkill. Usual fixes apply friendly fire scale to suspicious damage themselves, which also disables some of the environmental damage. In order to avoid that, this fix allows server owner to define precisely to what damage types to apply the friendly fire scaling. It should be all damage types related to projectiles.
 
 ### [NEW] Fix for zed time lags
 
