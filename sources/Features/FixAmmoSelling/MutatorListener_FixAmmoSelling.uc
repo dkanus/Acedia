@@ -28,7 +28,7 @@ static function bool CheckReplacement(Actor other, out byte isSuperRelevant)
     return true;
 }
 
-static function CheckAbusableWeapon(KFWeapon newWeapon)
+private static function CheckAbusableWeapon(KFWeapon newWeapon)
 {
     local FixAmmoSelling ammoSellingFix;
     if (newWeapon == none)      return;
@@ -37,7 +37,7 @@ static function CheckAbusableWeapon(KFWeapon newWeapon)
     ammoSellingFix.FixWeapon(newWeapon);
 }
 
-static function CheckAmmoPickup(KFAmmoPickup newAmmoPickup)
+private static final function CheckAmmoPickup(KFAmmoPickup newAmmoPickup)
 {
     if (newAmmoPickup == none) return;
     class'AmmoPickupStalker'.static.StalkAmmoPickup(newAmmoPickup);
