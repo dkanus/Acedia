@@ -89,15 +89,21 @@ class FixAmmoSelling extends Feature;
 
 //      Due to how this fix works, players with level below 6 get charged less
 //  than necessary by the shop and this fix must take the rest of
-//  the cost by itself. While for unreliable and for minuscule benefit,
-//  this can potentially be abused by cheaters.
-//      To decrease the amount of value they can get from it, this fix can be
-//  allowed to decrease players' money into negative values.
-//  The trade off is a small chance that a some bug in this fix and
-//  an unlucky circumstances can lead to regular players
-//  having negative dosh values.  
-//      Both situations are highly unlikely, but the option is there.
- var private config const bool allowNegativeDosh;
+//  the cost by itself.
+//      The problem is, due to how ammo purchase is coded, low-level (<6 lvl)
+//  players can actually buy more ammo for "fixed" weapons than they can afford
+//  by filling ammo for one or all weapons.
+//      Setting this flag to 'true' will allow us to still take full cost
+//  from them, putting them in "debt" (having negative dosh amount).
+//  If you don't want to have players with negative dosh values on your server
+//  as a side-effect of this fix, then leave this flag as 'false',
+//  letting low level players buy ammo cheaper
+//  (but not cheaper than lvl6 could).
+//      NOTE: this issue doesn't affect level 6 players.
+//      NOTE #2: this fix does give players below level 6 some
+//  technical advantage compared to vanilla game, but this advantage
+//  cannot exceed benefits of having level 6.
+var private config const bool allowNegativeDosh;
 
 //      This structure records what classes of weapons can be abused
 //  and what pickup class we should use to fix the exploit.
@@ -373,7 +379,7 @@ event Tick(float delta)
 
 defaultproperties
 {
-    allowNegativeDosh = true;
+    allowNegativeDosh = false
     rules(0)=(abusableWeapon=class'KFMod.Crossbow',pickupReplacement=class'FixAmmoSellingClass_CrossbowPickup')
     rules(1)=(abusableWeapon=class'KFMod.PipeBombExplosive',pickupReplacement=class'FixAmmoSellingClass_PipeBombPickup')
     rules(2)=(abusableWeapon=class'KFMod.M79GrenadeLauncher',pickupReplacement=class'FixAmmoSellingClass_M79Pickup')
