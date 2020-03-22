@@ -142,8 +142,31 @@ private final function bool HasDuplicateGuns(KFHumanPawn playerPawn)
     return false;
 }
 
+private final function Vector DropWeapon(KFWeapon weaponToDrop)
+{
+    local Vector        x, y, z;
+    local Vector        weaponVelocity;
+    local Vector        dropLocation;
+    local KFHumanPawn   playerPawn;
+    if (weaponToDrop == none)   return Vect(0, 0, 0);
+    playerPawn = KFHumanPawn(weaponToDrop.instigator);
+    if (playerPawn == none)     return Vect(0, 0, 0);
+
+    //  Calculations from 'PlayerController.ServerThrowWeapon'
+    weaponVelocity = Vector(playerPawn.GetViewRotation());
+    weaponVelocity *= (playerPawn.velocity dot weaponVelocity) + 150;
+    weaponVelocity += Vect(0, 0, 100);
+    //  Calculations from 'Pawn.TossWeapon'
+    GetAxes(playerPawn.rotation, x, y, z);
+    dropLocation = playerPawn.location + 0.8 * playerPawn.collisionRadius * x -
+        0.5 * playerPawn.collisionRadius * y;
+    //  Do the drop
+    weaponToDrop.velocity = weaponVelocity;
+    weaponToDrop.DropFrom(dropLocation);
+}
+
 //  Kill the gun devil!
-private final function DestroyEverything(KFHumanPawn playerPawn)
+private final function DropEverything(KFHumanPawn playerPawn)
 {
     local int               i;
     local Inventory         inv;
@@ -162,7 +185,7 @@ private final function DestroyEverything(KFHumanPawn playerPawn)
     //  And destroy them later.
     for(i = 0; i < weaponList.length; i += 1)
     {
-        weaponList[i].Destroy();
+        DropWeapon(weaponList[i]);
     }
 }
 
@@ -185,7 +208,7 @@ event Timer()
         }
         if (IsWeightLimitViolated(nextPawn) || HasDuplicateGuns(nextPawn))
         {
-            DestroyEverything(nextPawn);
+            DropEverything(nextPawn);
         }
     }
 }
