@@ -44,4 +44,6 @@ defaultproperties
     features(7) = class'FixInventoryAbuse'
     //  Listeners
     requiredListeners(0) = class'MutatorListener_Connection'
+    //  Unit tests
+    testCases(0) = class'TEST_JSON'
 }
