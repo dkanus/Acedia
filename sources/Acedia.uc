@@ -31,6 +31,9 @@ var private Acedia selfReference;
 //  Array of predefined services that must be started along with Acedia mutator.
 var private array< class<Service> > systemServices;
 
+//  All unit tests loaded from all packages.
+var private array< class<TestCase> > testCases;
+
 static public final function Acedia GetInstance()
 {
     return default.selfReference;
@@ -68,6 +71,12 @@ private final function LoadManifest(class<Manifest> manifestClass)
         {
             manifestClass.default.features[i].static.EnableMe();
         }
+    }
+    //  Load unit tests
+    for (i = 0; i < manifestClass.default.testCases.length; i += 1)
+    {
+        if (manifestClass.default.testCases[i] == none) continue;
+        testCases[testCases.length] = manifestClass.default.testCases[i];
     }
 }
 

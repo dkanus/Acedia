@@ -26,6 +26,9 @@
 //  List of features in this manifest's package.
 var public const array< class<Feature> >    features;
 
+//  List of features in this manifest's package.
+var public const array< class<TestCase> >   testCases;
+
 //  Listeners listed here will be automatically activated.
 var public const array< class<Listener> >   requiredListeners;
 
