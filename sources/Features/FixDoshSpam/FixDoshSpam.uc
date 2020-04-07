@@ -89,7 +89,7 @@ var private array<DoshStreamPerPlayer> currentContributors;
 //  Wads of cash that are lying around on the map.
 var private array<CashPickup> wads;
 
-public function OnEnabled()
+protected function OnEnabled()
 {
     local CashPickup nextCash;
     //      Find all wads of cash laying around on the map,
@@ -100,7 +100,7 @@ public function OnEnabled()
     }
 }
 
-public function OnDisabled()
+protected function OnDisabled()
 {
     wads.length                 = 0;
     currentContributors.length  = 0;

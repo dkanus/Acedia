@@ -133,7 +133,7 @@ struct WeaponRecord
 //  All weapons we've detected so far.
 var private array<WeaponRecord> registeredWeapons; 
 
-public function OnEnabled()
+protected function OnEnabled()
 {
     local KFWeapon      nextWeapon;
     local KFAmmoPickup  nextPickup;
@@ -149,7 +149,7 @@ public function OnEnabled()
     }
 }
 
-public function OnDisabled()
+protected function OnDisabled()
 {
     local int                       i;
     local AmmoPickupStalker         nextStalker;

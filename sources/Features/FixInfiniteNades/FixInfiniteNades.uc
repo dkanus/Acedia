@@ -58,7 +58,7 @@ struct FragAmmoRecord
 };
 var private array<FragAmmoRecord> ammoRecords;
 
-public function OnEnabled()
+protected function OnEnabled()
 {
     local Frag nextFrag;
     //  Find all frags, that spawned when this fix wasn't running.
@@ -69,7 +69,7 @@ public function OnEnabled()
     RecreateFrags();
 }
 
-public function OnDisabled()
+protected function OnDisabled()
 {
     RecreateFrags();
     ammoRecords.length = 0;

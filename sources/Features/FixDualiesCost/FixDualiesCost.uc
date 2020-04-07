@@ -145,7 +145,7 @@ var private const array<WeaponDataRecord> storedValues;
 //  Sell value of the last seen pickup in 'OverridePickupQuery'
 var private int nextSellValue;
 
-public function OnEnabled()
+protected function OnEnabled()
 {
     local KFWeapon nextWeapon;
     //  Find all frags, that spawned when this fix wasn't running.
@@ -156,7 +156,7 @@ public function OnEnabled()
     level.game.AddGameModifier(Spawn(class'DualiesCostRule'));
 }
 
-public function OnDisabled()
+protected function OnDisabled()
 {
     local GameRules         rulesIter;
     local DualiesCostRule   ruleToDestroy;

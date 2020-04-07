@@ -56,12 +56,12 @@ var private config const array< class<DamageType> > alwaysScale;
 //  Damage types, for which we should never reapply friendly fire scaling.
 var private config const array< class<DamageType> > neverScale;
 
-public function OnEnabled()
+protected function OnEnabled()
 {
     level.game.AddGameModifier(Spawn(class'FFHackRule'));
 }
 
-public function OnDisabled()
+protected function OnDisabled()
 {
     local GameRules     rulesIter;
     local FFHackRule    ruleToDestroy;

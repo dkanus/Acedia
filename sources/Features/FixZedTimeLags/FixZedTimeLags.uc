@@ -65,7 +65,7 @@ var private float updateCooldown;
 //  Recorded game type, to avoid constant conversions every tick
 var private KFGameType gameType;
 
-public function OnEnabled()
+protected function OnEnabled()
 {
     gameType = KFGameType(level.game);
     if (gameType == none)
@@ -78,7 +78,7 @@ public function OnEnabled()
     }
 }
 
-public function OnDisabled()
+protected function OnDisabled()
 {
     gameType = KFGameType(level.game);
     if (gameType != none && disableTick)

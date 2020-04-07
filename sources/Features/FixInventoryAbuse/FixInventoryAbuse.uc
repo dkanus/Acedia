@@ -44,7 +44,7 @@ struct DualiesPair
 //  It's made configurable in case of custom dual weapons.
 var private config const array<DualiesPair> dualiesClasses;
 
-public function OnEnabled()
+protected function OnEnabled()
 {
     local float actualInterval;
     actualInterval = checkInterval;
@@ -55,7 +55,7 @@ public function OnEnabled()
     SetTimer(actualInterval, true);
 }
 
-public function OnDisabled()
+protected function OnDisabled()
 {
     SetTimer(0.0f, false);
 }
