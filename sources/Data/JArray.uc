@@ -21,14 +21,14 @@
  * You should have received a copy of the GNU General Public License
  * along with Acedia.  If not, see <https://www.gnu.org/licenses/>.
  */
-class JSONArray extends JSONBase;
+class JArray extends JSON;
 
 //  Data will simply be stored as an array of JSON values
-var private array<JSONStorageValue> data;
+var private array<JStorageAtom> data;
 
 //  Return type of value stored at a given index.
 //  Returns `JSON_Undefined` if and only if given index is out of bounds.
-public final function JSONType GetType(int index)
+public final function JType GetTypeOf(int index)
 {
     if (index < 0)              return JSON_Undefined;
     if (index >= data.length)   return JSON_Undefined;
@@ -72,27 +72,27 @@ public final function SetLength(int newLength)
 //  will simply return `none`.
 public final function float GetNumber(int index, optional float defaultValue)
 {
-    if (index < 0)                              return defaultValue;
-    if (index >= data.length)                   return defaultValue;
-    if (data[index].type != JSON_Number)  return defaultValue;
+    if (index < 0)                          return defaultValue;
+    if (index >= data.length)               return defaultValue;
+    if (data[index].type != JSON_Number)    return defaultValue;
 
     return data[index].numberValue;
 }
 
 public final function string GetString(int index, optional string defaultValue)
 {
-    if (index < 0)                              return defaultValue;
-    if (index >= data.length)                   return defaultValue;
-    if (data[index].type != JSON_String)  return defaultValue;
+    if (index < 0)                          return defaultValue;
+    if (index >= data.length)               return defaultValue;
+    if (data[index].type != JSON_String)    return defaultValue;
 
     return data[index].stringValue;
 }
 
 public final function bool GetBoolean(int index, optional bool defaultValue)
 {
-    if (index < 0)                              return defaultValue;
-    if (index >= data.length)                   return defaultValue;
-    if (data[index].type != JSON_Boolean) return defaultValue;
+    if (index < 0)                          return defaultValue;
+    if (index >= data.length)               return defaultValue;
+    if (data[index].type != JSON_Boolean)   return defaultValue;
 
     return data[index].booleanValue;
 }
@@ -105,22 +105,22 @@ public final function bool IsNull(int index)
     return (data[index].type == JSON_Null);
 }
 
-public final function JSONArray GetArray(int index)
+public final function JArray GetArray(int index)
 {
-    if (index < 0)                              return none;
-    if (index >= data.length)                   return none;
-    if (data[index].type != JSON_Array)   return none;
+    if (index < 0)                      return none;
+    if (index >= data.length)           return none;
+    if (data[index].type != JSON_Array) return none;
 
-    return JSONArray(data[index].complexValue);
+    return JArray(data[index].complexValue);
 }
 
-public final function JSONObject GetObject(int index)
+public final function JObject GetObject(int index)
 {
-    if (index < 0)                              return none;
-    if (index >= data.length)                   return none;
-    if (data[index].type != JSON_Object)  return none;
+    if (index < 0)                          return none;
+    if (index >= data.length)               return none;
+    if (data[index].type != JSON_Object)    return none;
 
-    return JSONObject(data[index].complexValue);
+    return JObject(data[index].complexValue);
 }
 
 //      Following functions provide simple setters for boolean, string, number
@@ -132,14 +132,14 @@ public final function JSONObject GetObject(int index)
 //  `false` (nothing will be done in this case).
 //      They return object itself, allowing user to chain calls like this:
 //  `array.SetNumber("num1", 1).SetNumber("num2", 2);`.
-public final function JSONArray SetNumber
+public final function JArray SetNumber
 (
     int index,
     float value,
     optional bool preventExpansion
 )
 {
-    local JSONStorageValue newStorageValue;
+    local JStorageAtom newStorageValue;
     if (index < 0) return self;
 
     if (index >= data.length)
@@ -159,14 +159,14 @@ public final function JSONArray SetNumber
     return self;
 }
 
-public final function JSONArray SetString
+public final function JArray SetString
 (
     int index,
     string value,
     optional bool preventExpansion
 )
 {
-    local JSONStorageValue newStorageValue;
+    local JStorageAtom newStorageValue;
     if (index < 0) return self;
 
     if (index >= data.length)
@@ -186,14 +186,14 @@ public final function JSONArray SetString
     return self;
 }
 
-public final function JSONArray SetBoolean
+public final function JArray SetBoolean
 (
     int index,
     bool value,
     optional bool preventExpansion
 )
 {
-    local JSONStorageValue newStorageValue;
+    local JStorageAtom newStorageValue;
     if (index < 0) return self;
 
     if (index >= data.length)
@@ -213,13 +213,13 @@ public final function JSONArray SetBoolean
     return self;
 }
 
-public final function JSONArray SetNull
+public final function JArray SetNull
 (
     int index,
     optional bool preventExpansion
 )
 {
-    local JSONStorageValue newStorageValue;
+    local JStorageAtom newStorageValue;
     if (index < 0) return self;
 
     if (index >= data.length)
@@ -247,13 +247,13 @@ public final function JSONArray SetNull
 //  `false` (nothing will be done in this case).
 //      They return object itself, allowing user to chain calls like this:
 //  `array.CreateObject("sub object").CreateArray("sub array");`.
-public final function JSONArray CreateArray
+public final function JArray CreateArray
 (
     int index,
     optional bool preventExpansion
 )
 {
-    local JSONStorageValue newStorageValue;
+    local JStorageAtom newStorageValue;
     if (index < 0) return self;
 
     if (index >= data.length)
@@ -268,18 +268,18 @@ public final function JSONArray CreateArray
         }
     }
     newStorageValue.type            = JSON_Array;
-    newStorageValue.complexValue    = new class'JSONArray';
+    newStorageValue.complexValue    = _.json.newArray();
     data[index] = newStorageValue;
     return self;
 }
 
-public final function JSONArray CreateObject
+public final function JArray CreateObject
 (
     int index,
     optional bool preventExpansion
 )
 {
-    local JSONStorageValue newStorageValue;
+    local JStorageAtom newStorageValue;
     if (index < 0) return self;
 
     if (index >= data.length)
@@ -294,51 +294,51 @@ public final function JSONArray CreateObject
         }
     }
     newStorageValue.type            = JSON_Object;
-    newStorageValue.complexValue    = new class'JSONObject';
+    newStorageValue.complexValue    = _.json.newObject();
     data[index] = newStorageValue;
     return self;
 }
 
 //      Wrappers for setter functions that don't take index or
 //  `preventExpansion` parameters and add/create value at the end of the array.
-public final function JSONArray AddNumber(float value)
+public final function JArray AddNumber(float value)
 {
     return SetNumber(data.length, value);
 }
 
-public final function JSONArray AddString(string value)
+public final function JArray AddString(string value)
 {
     return SetString(data.length, value);
 }
 
-public final function JSONArray AddBoolean(bool value)
+public final function JArray AddBoolean(bool value)
 {
     return SetBoolean(data.length, value);
 }
 
-public final function JSONArray AddNull()
+public final function JArray AddNull()
 {
     return SetNull(data.length);
 }
 
-public final function JSONArray AddArray()
+public final function JArray AddArray()
 {
     return CreateArray(data.length);
 }
 
-public final function JSONArray AddObject()
+public final function JArray AddObject()
 {
     return CreateObject(data.length);
 }
 
-//  Removes up to `amount` of values, starting from a given index.
-//  If `index` falls outside array boundaries - nothing will be done.
+//  Removes up to `amount` (minimum of `1`) of values, starting from
+//  a given index.
+//      If `index` falls outside array boundaries - nothing will be done.
 //  Returns `true` if value was actually removed and `false` if it didn't exist.
 public final function bool RemoveValue(int index, optional int amount)
 {
     if (index < 0)              return false;
     if (index >= data.length)   return false;
-    if (amount < 1)             return false;
 
     amount = Max(amount, 1);
     amount = Min(amount, data.length - index);

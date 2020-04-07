@@ -28,10 +28,11 @@
  * You should have received a copy of the GNU General Public License
  * along with Acedia.  If not, see <https://www.gnu.org/licenses/>.
  */
-class JSONBase extends Object;
+class JSON extends AcediaActor
+    abstract;
 
 //  Enumeration for possible types of JSON values.
-enum JSONType
+enum JType
 {
     //  Technical type, used to indicate that requested value is missing.
     //  Undefined values are not part of JSON format.
@@ -53,18 +54,31 @@ enum JSONType
 };
 
 //  Stores a single JSON value
-struct JSONStorageValue
+struct JStorageAtom
 {
     //  What type is stored exactly?
     //  Depending on that, uses one of the other fields as a storage.
-    var public JSONType     type;
+    var protected JType     type;
     var protected float     numberValue;
     var protected string    stringValue;
     var protected bool      booleanValue;
     //  Used for storing both JSON objects and arrays.
-    var protected JSONBase  complexValue;
+    var protected JSON      complexValue;
 };
 
+//  TODO:   Rewrite JSON object to use more efficient storage data structures
+//          that will support subtypes:
+//              ~ Number: byte, int, float
+//              ~ String: string, class
+//          (maybe move to auto generated code?).
+//  TODO:   Add cleanup queue to efficiently and without crashes clean up
+//          removed objects.
+//  TODO:   Add `JValue` - a reference type for number / string / boolean / null
+//  TODO:   Add accessors for last values.
+//  TODO:   Add path-getters.
+//  TODO:   Add iterators.
+//  TODO:   Add parsing/printing.
+//  TODO:   Add functions for deep copy.
 defaultproperties
 {
 }

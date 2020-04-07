@@ -1,8 +1,9 @@
 /**
- *  Class for an object that will provide an access to a Acedia's functionality
- *  by giving a reference to this actor to all Acedia's objects and actors,
- *  emulating a global API namespace.
- *      Copyright 2020 Anton Tarasenko
+ *      Singleton is an auxiliary class, meant to be used as a base for others,
+ *  that allows for only one instance of it to exist.
+ *      To make sure your child class properly works, either don't overload
+ *  'PreBeginPlay' or make sure to call it's parent's version.
+ *      Copyright 2019 Anton Tarasenko
  *------------------------------------------------------------------------------
  * This file is part of Acedia.
  *
@@ -19,14 +20,22 @@
  * You should have received a copy of the GNU General Public License
  * along with Acedia.  If not, see <https://www.gnu.org/licenses/>.
  */
-class Global extends Singleton;
+class JSONAPI extends Singleton;
 
-var public Acedia   acedia;
-var public JSONAPI  json;
-
-protected function OnCreated()
+public function JObject newObject()
 {
-    acedia  = class'Acedia'.static.GetInstance();
-    Spawn(class'JSONAPI');
-    json    = JSONAPI(class'JSONAPI'.static.GetInstance());
+    local JObject newObject;
+    newObject = Spawn(class'JObject');
+    return newObject;
+}
+
+public function JArray newArray()
+{
+    local JArray newArray;
+    newArray = Spawn(class'JArray');
+    return newArray;
+}
+
+defaultproperties
+{
 }
