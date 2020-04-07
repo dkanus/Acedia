@@ -49,6 +49,7 @@ event PreBeginPlay()
     }
     default.selfReference = self;
     //  Boot up Acedia
+    Spawn(class'Global');
     LoadManifest(class'Manifest');
     LaunchServices();
     InjectBroadcastHandler();   //  TODO: move this to 'SideEffect' mechanic
