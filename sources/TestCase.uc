@@ -25,7 +25,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Acedia.  If not, see <https://www.gnu.org/licenses/>.
  */
-class TestCase extends Actor
+class TestCase extends AcediaObject
     abstract;
 
 //  Name by which this set of unit tests can be referred to.
@@ -246,6 +246,17 @@ public final static function bool PerformTests()
     return default.currentSummary.passed;
 }
 
+//  TODO:   Support for testing in stages to avoid infinite loop crashes.
+//  TODO:   Add support for test scening: grabbing pawns, placing them, waiting.
+//  TODO:   Expand scening support: triggering functions on client, moving.
+//  TODO:   Expand scening support: zed spawning, aggro setting.
+//  TODO:   Expand scening support: function calls (i.e. for CashToss),
+//          testing `FixDoshSpam` feature.
+//  TODO:   Expand scening support: lag detection.
+//  TODO:   Expand scening support: test `FixZedTime`.
+//  TODO:   Expand scening support: aiming shooting, detecting damage.
+//  TODO:   Expand scening support: testing `FixFFHack`.
+//  TODO:   Testing infinite nade (partially), ammo selling, dualies cost.
 defaultproperties
 {
     caseName = ""
