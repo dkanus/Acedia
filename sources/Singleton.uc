@@ -20,10 +20,10 @@
  * You should have received a copy of the GNU General Public License
  * along with Acedia.  If not, see <https://www.gnu.org/licenses/>.
  */
-class Singleton extends Actor
+class Singleton extends AcediaActor
     abstract;
 
-//      Default value of this variable will store one and only existing version\
+//      Default value of this variable will store one and only existing version
 //  of actor of this class.
 var private Singleton activeInstance;
 
@@ -44,8 +44,14 @@ public final static function bool IsSingletonCreationBlocked()
     return default.blockSpawning;
 }
 
+protected function OnCreated(){}
+protected function OnDestroyed(){}
+
 //  Make sure only one instance of 'Singleton' exists at any point in time.
-//      If you overload this function in any child class -
+//      Instead of overloading this function we suggest you overload a special
+//  event function `OnCreated()` that is called whenever a valid `Singleton`
+//  instance is spawned.
+//      If you absolutely must overload this function in any child class -
 //  first call this version of the method and then check if
 //  you are about to be deleted 'bDeleteMe == true':
 //  ____________________________________________________________________________
@@ -57,6 +63,7 @@ public final static function bool IsSingletonCreationBlocked()
 //  |___________________________________________________________________________
 event PreBeginPlay()
 {
+    super.PreBeginPlay();
     if (default.blockSpawning || GetInstance() != none)
     {
         Destroy();
@@ -64,6 +71,22 @@ event PreBeginPlay()
     else
     {
         default.activeInstance = self;
+        OnCreated();
+    }
+}
+
+//  Make sure only one instance of 'Singleton' exists at any point in time.
+//      Instead of overloading this function we suggest you overload a special
+//  event function `OnDestroyed()` that is called whenever a valid `Singleton`
+//  instance is destroyed.
+//      If you absolutely must overload this function in any child class -
+//  first call this version of the method.
+event Destroyed()
+{
+    super.Destroyed();
+    if (self == GetInstance())
+    {
+        OnDestroyed();
     }
 }
 
