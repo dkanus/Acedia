@@ -1,8 +1,5 @@
 /**
- *      Singleton is an auxiliary class, meant to be used as a base for others,
- *  that allows for only one instance of it to exist.
- *      To make sure your child class properly works, either don't overload
- *  'PreBeginPlay' or make sure to call it's parent's version.
+ *  Provides convenient access to JSON-related functions.
  *      Copyright 2019 Anton Tarasenko
  *------------------------------------------------------------------------------
  * This file is part of Acedia.
