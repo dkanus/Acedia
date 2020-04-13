@@ -46,4 +46,5 @@ defaultproperties
     requiredListeners(0) = class'MutatorListener_Connection'
     //  Unit tests
     testCases(0) = class'TEST_JSON'
+    testCases(1) = class'TEST_Aliases'
 }

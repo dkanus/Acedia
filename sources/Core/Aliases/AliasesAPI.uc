@@ -1,8 +1,6 @@
 /**
- *  Class for an object that will provide an access to a Acedia's functionality
- *  by giving a reference to this actor to all Acedia's objects and actors,
- *  emulating a global API namespace.
- *      Copyright 2020 Anton Tarasenko
+ *  Provides convenient access to Aliases-related functions.
+ *      Copyright 2019 Anton Tarasenko
  *------------------------------------------------------------------------------
  * This file is part of Acedia.
  *
@@ -19,16 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with Acedia.  If not, see <https://www.gnu.org/licenses/>.
  */
-class Global extends Singleton;
+class AliasesAPI extends Singleton;
 
-var public Acedia       acedia;
-var public JSONAPI      json;
-var public AliasesAPI   alias;
-
-protected function OnCreated()
+//  Resolves original value for given alias and it's group.
+//  Returns `false` if there no such alias and `true` if there is.
+public function bool Resolve(string group, string alias, out string result)
 {
-    acedia  = class'Acedia'.static.GetInstance();
-    Spawn(class'JSONAPI');
-    json    = JSONAPI(class'JSONAPI'.static.GetInstance());
-    alias   = AliasesAPI(class'AliasesAPI'.static.GetInstance());
+    return class'Aliases'.static.ResolveAlias(group, alias, result);
+}
+
+//  Tries to resolve given alias.
+//  If fails - returns passed `alias` value back.
+public function string Try(string group, string alias)
+{
+    local string result;
+    if (class'Aliases'.static.ResolveAlias(group, alias, result))
+    {
+        return result;
+    }
+    return alias;
+}
+
+defaultproperties
+{
 }
