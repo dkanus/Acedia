@@ -68,8 +68,8 @@ public static final function Feature EnableMe()
 }
 
 //  Event functions that are called when 
-public function OnEnabled(){}
-public function OnDisabled(){}
+protected function OnEnabled(){}
+protected function OnDisabled(){}
 
 //  Set listeners' status
 private static function SetListenersActiveSatus(bool newStatus)
@@ -82,27 +82,15 @@ private static function SetListenersActiveSatus(bool newStatus)
     }
 }
 
-//      'OnEnabled' and 'OnDisabled' should be called from functions that
-//  will be called regardless of whether 'Feature' was created
-//  with 'ChangeEnabledState' or in some other way.
-event PreBeginPlay()
+protected function OnCreated()
 {
-    super.PreBeginPlay();
-    //      '!bDeleteMe' means that we will be a singleton instance,
-    //  meaning that we only just got enabled.
-    if (!bDeleteMe && IsEnabled())
-    {
-        //  Block spawning this feature before calling any other events
-        default.blockSpawning = true;
-        SetListenersActiveSatus(true);
-        OnEnabled();
-        return;
-    }
+    default.blockSpawning = true;
+    SetListenersActiveSatus(true);
+    OnEnabled();
 }
 
-event Destroyed()
+protected function OnDestroyed()
 {
-    super.Destroyed();
     SetListenersActiveSatus(false);
     OnDisabled();
 }
