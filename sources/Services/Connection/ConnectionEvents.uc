@@ -48,4 +48,5 @@ static function CallPlayerDisconnected(ConnectionService.Connection connection)
 defaultproperties
 {
     relatedListener = class'ConnectionListenerBase'
+    connectedServiceClass = class'ConnectionService'
 }
