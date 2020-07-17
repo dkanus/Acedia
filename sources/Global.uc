@@ -22,13 +22,30 @@
 class Global extends Singleton;
 
 var public Acedia       acedia;
+var public LoggerAPI    logger;
 var public JSONAPI      json;
 var public AliasesAPI   alias;
+var public TextAPI      text;
+var public MemoryAPI    memory;
+var public ConsoleAPI   console;
+var public ColorAPI     color;
 
+//  TODO: APIs must be `remoteRole = ROLE_None`
 protected function OnCreated()
 {
     acedia  = class'Acedia'.static.GetInstance();
+    Spawn(class'LoggerAPI');
+    logger  = LoggerAPI(class'LoggerAPI'.static.GetInstance());
     Spawn(class'JSONAPI');
     json    = JSONAPI(class'JSONAPI'.static.GetInstance());
+    Spawn(class'AliasesAPI');
     alias   = AliasesAPI(class'AliasesAPI'.static.GetInstance());
+    Spawn(class'TextAPI');
+    text    = TextAPI(class'TextAPI'.static.GetInstance());
+    Spawn(class'MemoryAPI');
+    memory  = MemoryAPI(class'MemoryAPI'.static.GetInstance());
+    Spawn(class'ConsoleAPI');
+    console = ConsoleAPI(class'ConsoleAPI'.static.GetInstance());
+    Spawn(class'ColorAPI');
+    color   = ColorAPI(class'ColorAPI'.static.GetInstance());
 }
