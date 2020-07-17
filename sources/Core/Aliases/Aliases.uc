@@ -1,20 +1,14 @@
 /**
- *      Aliases allow users to define human-readable and easier to use
- *  "synonyms" to some symbol sequences (mainly names of UnrealScript classes).
- *      Due to how aliases are stored, there is a limitation on original
- *  values to which aliases refer: it must be a valid object name to store via
- *  `perObjectConfig`. For example it cannot contain `]` or a dot `.`
- *  (use `:` as a delimiter for class names: `KFMod:M14EBRBattleRifle`).
- *      Aliases can be grouped into categories: "weapons", "test", "maps", etc.
- *      Aliases can be configured in `AcediaAliases` in form:
- *      ________________________________________________________________________
- *      |   [<groupName>/<aliasesValue> Aliases]
- *      |   Alias="<alias1>"
- *      |   Alias="<alias2>"
- *      |   ...
- *      |_______________________________________________________________________
- *  where <groupName>, <aliasesValue>, <alias1>, ... can be replaced with
- *  desired values.
+ *      This is a simple helper object for `AliasSource` that can store
+ *  an array of aliases in config files in a per-object-config manner.
+ *      One `Aliases` object can store several aliases for a single value.
+ *      It is recommended that you do not try to access these objects directly.
+ *      Class name `Aliases` is chosen to make configuration files
+ *  more readable.
+ *      It's only interesting function is storing '.'s as ':' in it's config,
+ *  which is necessary to allow storing aliases for class names via
+ *  these objects (since UnrealScript's cannot handle '.'s in object's names
+ *  in it's configs).
  *      Copyright 2020 Anton Tarasenko
  *------------------------------------------------------------------------------
  * This file is part of Acedia.
@@ -36,105 +30,113 @@ class Aliases extends AcediaObject
     perObjectConfig
     config(AcediaAliases);
 
+//  Link to the `AliasSource` that uses `Aliases` objects of this class.
+//  To ensure that any `Aliases` sub-class only belongs to one `AliasSource`.
+var public const class<AliasSource> sourceClass;
+
+//      Aliases, recorded by this `Aliases` object that all mean the same value,
+//  defined by this object's name `string(self.name)`.
+var protected config array<string> alias;
+
+//  Since '.'s in values are converted into ':' for storage purposes,
+//  we need methods to convert between "storage" and "actual" value version.
+//  `ToStorageVersion()` and `ToActualVersion()` do that.
+private final function string ToStorageVersion(string actualValue)
+{
+    return Repl(actualValue, ".", ":");
+}
+
+private final function string ToActualVersion(string storageValue)
+{
+    return Repl(storageValue, ":", ".");
+}
+
 /**
- *      All data is stored in config as a bunch of named `Aliases` objects
- *  (via `perObjectConfig`). Name of each object records both aliases group and
- *  value (see class description for details).
- *      Aliases themselves are recorded into the `alias` array.
+ *  Returns value that caller's `Aliases` object's aliases point to.
+ *
+ *  @return Value, stored by this object.
  */
-
-//  Stores name of the configuration file.
-var private const string configName;
-//  Both value 
-//  Symbol (or symbol sequence) that separates value from the group in
-//  `[<groupName>/<aliasesValue> Aliases]`.
-var private const string delimiter;
-
-//  Set once to prevent more than one object loading.
-var private bool initialized;
-
-//  All aliases objects, specified by the configuration file.
-var private array<Aliases>  availableRecords;
-
-//      Data loaded from the configuration file into the `Aliases` object.
-//  Value to which all aliases refer to.
-var private string              originalValue;
-//  Group to which this object's aliases belong to.
-var private string              groupName;
-//  Recorded  aliases ("synonyms") for the `originalValue`.
-var public config array<string> alias;
-
-//  Initializes data that we can not directly read from the configuration file.
-private final function Initialize()
+public final function string GetValue()
 {
-    if (initialized) return;
-
-    availableRecords.length = 0;
-    ParseObjectName(string(self.name));
-    initialized = true;
+    return ToActualVersion(string(self.name));
 }
 
-private final function ParseObjectName(string configName)
+/**
+ *  Returns array of aliases that caller `Aliases` tells us point to it's value.
+ *
+ *  @return Array of all aliases, stored by caller `Aliases` object.
+ */
+public final function array<string> GetAliases()
 {
-    local int           i;
-    local array<string> splitName;
-    Split(configName, "/", splitName);
-    groupName = splitName[0];
-    originalValue = "";
-    for (i = 1; i < splitName.length; i += 1)
-    {
-        originalValue $= splitName[i];
+    return alias;
+}
+
+/**
+ *  [For inner use by `AliasSource`] Adds new alias to this object.
+ *
+ *  Does no duplicates checks through for it's `AliasSource` and
+ *  neither it updates relevant `AliasHash`,
+ *  but will prevent adding duplicate records inside it's own storage.
+ *
+ *  @param  aliasToAdd  Alias to add to caller `Aliases` object.
+ */
+public final function AddAlias(string aliasToAdd)
+{
+    local int i;
+    for (i = 0; i < alias.length; i += 1) {
+        if (alias[i] ~= aliasToAdd) return;
     }
+    alias[alias.length] = ToStorageVersion(aliasToAdd);
+    AliasService(class'AliasService'.static.Require())
+        .PendingSaveObject(self);
 }
 
-//  This function loads all the defined aliases from the config file.
-//  Need to only be called once, further calls do nothing.
-public static final function LoadAliases()
+/**
+ *  [For inner use by `AliasSource`] Removes alias from this object.
+ *
+ *  Does not update relevant `AliasHash`.
+ *
+ *  Will prevent adding duplicate records inside it's own storage.
+ *
+ *  @param  aliasToRemove   Alias to remove from caller `Aliases` object.
+ */
+public final function RemoveAlias(string aliasToRemove)
 {
-    local int           i;
-    local array<string> recordNames;
-    if (default.initialized) return;
-    recordNames =
-        GetPerObjectNames(default.configName, string(class'Aliases'.name));
-    for (i = 0; i < recordNames.length; i += 1)
+    local int   i;
+    local bool  removedAlias;
+    while (i < alias.length)
     {
-        default.availableRecords[i] = new(none, recordNames[i]) class'Aliases';
-        if (default.availableRecords[i] != none)
+        if (alias[i] ~= aliasToRemove)
         {
-            default.availableRecords[i].Initialize();
+            alias.Remove(i, 1);
+            removedAlias = true;
+        }
+        else {
+            i += 1;
         }
     }
-    default.initialized = true;
+    if (removedAlias)
+    {
+        AliasService(class'AliasService'.static.Require())
+            .PendingSaveObject(self);
+    }
 }
 
-//  Tries to find original value for a given alias in a given group.
-public static final function bool ResolveAlias
-(
-    string group,
-    string alias,
-    out string result
-)
+/**
+ *  If this object still has any alias records, - forces a rewrite of it's data
+ *  into the config file, otherwise - removes it's record entirely.
+ */
+public final function SaveOrClear()
 {
-    local int i, j;
-    if (!default.initialized) return false;
-    for (i = 0; i < default.availableRecords.length; i += 1)
-    {
-        if (!(default.availableRecords[i].groupName ~= group)) continue;
-        for (j = 0; j < default.availableRecords[i].alias.length; j += 1)
-        {
-            if (default.availableRecords[i].alias[j] ~= alias)
-            {
-                result = default.availableRecords[i].originalValue;
-                return true;
-            }
-        }
+    if (alias.length <= 0) {
+        ClearConfig();
     }
-    return false;
+    else {
+        SaveConfig();
+    }
 }
 
 defaultproperties
 {
-    initialized = false
-    configName  = "AcediaAliases"
-    delimiter   = "/"
+    sourceClass = class'AliasSource'
 }
