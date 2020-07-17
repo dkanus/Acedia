@@ -1,5 +1,5 @@
 /**
- *  Main and only Acedia mutator used for initialization of necessary services
+ *  Main and only Acedia mutator used for loading Acedia packages
  *  and providing access to mutator events' calls.
  *      Copyright 2020 Anton Tarasenko
  *------------------------------------------------------------------------------
@@ -29,10 +29,10 @@ class Acedia extends Mutator
 var private Acedia selfReference;
 
 //  Array of predefined services that must be started along with Acedia mutator.
-var private array< class<Service> > systemServices;
+var private config array< class<Manifest> > registeredManifests;
 
-//  All unit tests loaded from all packages.
-var private array< class<TestCase> > testCases;
+//  Array of predefined services that must be started along with Acedia mutator.
+var private array< class<Service> > systemServices;
 
 static public final function Acedia GetInstance()
 {
@@ -48,46 +48,58 @@ event PreBeginPlay()
         return;
     }
     default.selfReference = self;
-    //  Boot up Acedia
+    BootUp();
+    if (class'TestingService'.default.runTestsOnStartUp) {
+        RunStartUpTests();
+    }
+}
+
+private final function BootUp()
+{
+    local int i;
     Spawn(class'Global');
-    LoadManifest(class'Manifest');
-    LaunchServices();
+    for (i = 0; i < registeredManifests.length; i += 1) {
+        LoadManifest(registeredManifests[i]);
+    }
     InjectBroadcastHandler();   //  TODO: move this to 'SideEffect' mechanic
+}
+
+private final function RunStartUpTests()
+{
+    local TestingService testService;
+    testService = TestingService(class'TestingService'.static.Require());
+    testService.PrepareTests();
+    if (testService.filterTestsByName) {
+        testService.FilterByName(testService.requiredName);
+    }
+    if (testService.filterTestsByGroup) {
+        testService.FilterByName(testService.requiredGroup);
+    }
+    testService.Run();
 }
 
 private final function LoadManifest(class<Manifest> manifestClass)
 {
     local int i;
-    //  Activate manifest's listeners
-    for (i = 0; i < manifestClass.default.requiredListeners.length; i += 1)
+    //  Load alias sources
+    for (i = 0; i < manifestClass.default.aliasSources.length; i += 1)
     {
-        if (manifestClass.default.requiredListeners[i] == none) continue;
-        manifestClass.default.requiredListeners[i].static.SetActive(true);
+        if (manifestClass.default.aliasSources[i] == none) continue;
+        Spawn(manifestClass.default.aliasSources[i]);
     }
     //  Enable features
     for (i = 0; i < manifestClass.default.features.length; i += 1)
     {
         if (manifestClass.default.features[i] == none) continue;
-        if (manifestClass.default.features[i].static.IsAutoEnabled())
-        {
+        if (manifestClass.default.features[i].static.IsAutoEnabled()) {
             manifestClass.default.features[i].static.EnableMe();
         }
     }
-    //  Load unit tests
+    //  Load tests cases
     for (i = 0; i < manifestClass.default.testCases.length; i += 1)
     {
-        if (manifestClass.default.testCases[i] == none) continue;
-        testCases[testCases.length] = manifestClass.default.testCases[i];
-    }
-}
-
-private final function LaunchServices()
-{
-    local int i;
-    for (i = 0; i < systemServices.length; i += 1)
-    {
-        if (systemServices[i] == none) continue;
-        Spawn(systemServices[i]);
+        class'TestingService'.static
+            .RegisterTestCase(manifestClass.default.testCases[i]);
     }
 }
 
@@ -119,23 +131,22 @@ function bool CheckReplacement(Actor other, out byte isSuperRelevant)
         CallCheckReplacement(other, isSuperRelevant);
 }
 
-function Mutate(string command, PlayerController sendingPlayer)
+function Mutate(string command, PlayerController sendingController)
 {
-    if (class'MutatorEvents'.static.CallMutate(command, sendingPlayer))
-    {
-        super.Mutate(command, sendingPlayer);
+    if (class'MutatorEvents'.static.CallMutate(command, sendingController)) {
+        super.Mutate(command, sendingController);
     }
 }
 
 defaultproperties
 {
-    //  List built-in services
-    systemServices(0) = class'ConnectionService'
+    //  Add Acedia's own manifest
+    registeredManifests(0) = class'Manifest'
     //  This is a server-only mutator
     remoteRole      = ROLE_None
     bAlwaysRelevant = true
     //  Mutator description
     GroupName       = "Core mutator"
     FriendlyName    = "Acedia"
-    Description     = "Mutator for all your degenerate needs"
+    Description     = "Launcher for Acedia modules"
 }
