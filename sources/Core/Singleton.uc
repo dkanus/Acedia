@@ -91,9 +91,10 @@ event PreBeginPlay()
 event Destroyed()
 {
     super.Destroyed();
-    if (self == GetInstance())
+    if (self == default.activeInstance)
     {
         OnDestroyed();
+        default.activeInstance = none;
     }
 }
 
