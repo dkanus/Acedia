@@ -22,29 +22,109 @@ class TEST_Aliases extends TestCase
 
 protected static function TESTS()
 {
-    local string result;
-    Context("Testing Aliases loading.");
-    Issue("`Try` cannot resolve correct alias");
-    TEST_ExpectTrue(_().alias.Try("test", "Ford") == "car");
-    TEST_ExpectTrue(_().alias.Try("test", "Delorean") == "car");
-    TEST_ExpectTrue(_().alias.Try("test", "HardToBeAGod") == "scifi");
+    Test_AliasHash();
+    Test_AliasLoading();
+}
 
-    Issue("`Resolve` cannot resolve correct alias");
-    _().alias.Resolve("test", "Ford", result);
-    TEST_ExpectTrue(result == "car");
-    _().alias.Resolve("test", "Audi", result);
-    TEST_ExpectTrue(result == "car");
-    _().alias.Resolve("test", "Spice", result);
-    TEST_ExpectTrue(result == "scifi");
+protected static function Test_AliasLoading()
+{
+    Context("Testing loading aliases from a mock object `MockAliasSource`.");
+    SubTest_AliasLoadingCorrect();
+    SubTest_AliasLoadingIncorrect();
+}
 
-    Issue("`Try` does not return original alias for non-existing alias record");
-    TEST_ExpectTrue(_().alias.Try("test", "AllFiction") == "AllFiction");
+protected static function SubTest_AliasLoadingCorrect()
+{
+    local AliasSource   source;
+    local string        outValue;
 
-    Issue("`Resolve` reports success when it failed");
-    TEST_ExpectFalse(_().alias.Resolve("test", "KarmicJustice", result));
+    Issue("`Resolve()` fails to return alias that should be loaded.");
+    source = _().alias.GetCustomSource(class'MockAliasSource');
+    TEST_ExpectTrue(source.Resolve("Global", outValue));
+    TEST_ExpectTrue(outValue == "value");
+    TEST_ExpectTrue(source.Resolve("ford", outValue));
+    TEST_ExpectTrue(outValue == "car");
 
-    Issue("`Resolve` reports failure when it succeeds");
-    TEST_ExpectTrue(_().alias.Resolve("test", "Delorean", result));
+    Issue("`Try()` fails to return alias that should be loaded.");
+    TEST_ExpectTrue(source.Try("question") == "response");
+    TEST_ExpectTrue(source.Try("delorean") == "car");
+
+    Issue("`ContainsAlias()` reports alias, that should be present,"
+        @ "as missing.");
+    TEST_ExpectTrue(source.ContainsAlias("Global"));
+    TEST_ExpectTrue(source.ContainsAlias("audi"));
+
+    Issue("Aliases in per-object-configs incorrectly handle ':'.");
+    TEST_ExpectTrue(source.Try("HardToBeAGod") == "sci.fi");
+
+    Issue("Aliases with empty values in alias name or their value are handled"
+        @ "incorrectly.");
+    TEST_ExpectTrue(source.Try("") == "empty");
+    TEST_ExpectTrue(source.Try("also") == "");
+}
+
+protected static function SubTest_AliasLoadingIncorrect()
+{
+    local AliasSource   source;
+    local string        outValue;
+    Context("Testing loading aliases from a mock object `MockAliasSource`.");
+    Issue("`AliasAPI` cannot return value custom source.");
+    source = _().alias.GetCustomSource(class'MockAliasSource');
+    TEST_ExpectNotNone(source);
+
+    Issue("`Resolve()` reports success of finding inexistent alias.");
+    source = _().alias.GetCustomSource(class'MockAliasSource');
+    TEST_ExpectFalse(source.Resolve("noSuchThing", outValue));
+
+    Issue("`Try()` does not return given value for non-existent alias.");
+    TEST_ExpectTrue(source.Try("TheHellIsThis") == "TheHellIsThis");
+
+    Issue("`ContainsAlias()` reports inexistent alias as present.");
+    TEST_ExpectFalse(source.ContainsAlias("FordК"));
+}
+
+protected static function Test_AliasHash()
+{
+    Context("Testing `AliasHasher`.");
+    SubTest_AliasHashInsertingRemoval();
+}
+
+protected static function SubTest_AliasHashInsertingRemoval()
+{
+    local AliasHash hasher;
+    local string    outValue;
+    hasher = new class'AliasHash';
+    hasher.Initialize();
+    Issue("`AliasHash` cannot properly store added aliases.");
+    hasher.Insert("alias", "value").Insert("one", "more");
+    TEST_ExpectTrue(hasher.Contains("alias"));
+    TEST_ExpectTrue(hasher.Contains("one"));
+    TEST_ExpectTrue(hasher.Find("alias", outValue));
+    TEST_ExpectTrue(outValue == "value");
+    TEST_ExpectTrue(hasher.Find("one", outValue));
+    TEST_ExpectTrue(outValue == "more");
+
+    Issue("`AliasHash` reports hashing aliases that never were hashed.");
+    TEST_ExpectFalse(hasher.Contains("alia"));
+
+    Issue("`AliasHash` cannot properly remove stored aliases.");
+    hasher.Remove("alias");
+    TEST_ExpectFalse(hasher.Contains("alias"));
+    TEST_ExpectTrue(hasher.Contains("one"));
+    TEST_ExpectFalse(hasher.Find("alias", outValue));
+    outValue = "wrong";
+    TEST_ExpectTrue(hasher.Find("one", outValue));
+    TEST_ExpectTrue(outValue == "more");
+
+    Issue("`InsertIfMissing()` function cannot properly store added aliases.");
+    TEST_ExpectTrue(hasher.InsertIfMissing("another", "var", outValue));
+    TEST_ExpectTrue(hasher.Find("another", outValue));
+    TEST_ExpectTrue(outValue == "var");
+
+    Issue("`InsertIfMissing()` function incorrectly resolves a conflict with"
+        @ "an existing value.");
+    TEST_ExpectFalse(hasher.InsertIfMissing("one", "something", outValue));
+    TEST_ExpectTrue(outValue == "more");
 }
 
 defaultproperties
