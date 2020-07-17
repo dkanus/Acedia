@@ -53,7 +53,6 @@ public static final function bool IsEnabled()
 }
 
 //  Enables feature of given class.
-//  To disable a feature simply use 'Destroy'.
 public static final function Feature EnableMe()
 {
     local Feature newInstance;
@@ -65,6 +64,18 @@ public static final function Feature EnableMe()
     newInstance = class'Acedia'.static.GetInstance().Spawn(default.class);
     default.blockSpawning = true;
     return newInstance;
+}
+
+public static final function bool DisableMe()
+{
+    local Feature myself;
+    myself = Feature(GetInstance());
+    if (myself != none)
+    {
+        myself.Destroy();
+        return true;
+    }
+    return false;
 }
 
 //  Event functions that are called when 
@@ -98,6 +109,7 @@ protected function OnDestroyed()
 defaultproperties
 {
     autoEnable      = false
+    DrawType        = DT_None
     //  Prevent spawning this feature by any other means than 'EnableMe()'.
     blockSpawning   = true
     //  Features are server-only actors
