@@ -25,6 +25,11 @@
 class AcediaObject extends Object
     abstract;
 
+public final function Text T(string string)
+{
+    return _().text.FromString(string);
+}
+
 public static final function Global _()
 {
     return Global(class'Global'.static.GetInstance());

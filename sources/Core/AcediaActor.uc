@@ -25,6 +25,11 @@ class AcediaActor extends Actor
 
 var protected Global _;
 
+public final function Text T(string string)
+{
+    return _.text.FromString(string);
+}
+
 event PreBeginPlay()
 {
     super.PreBeginPlay();
