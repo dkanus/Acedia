@@ -32,11 +32,18 @@ var private Singleton activeInstance;
 //      Only a default value is ever used.
 var protected bool blockSpawning;
 
-public final static function Singleton GetInstance()
+public final static function Singleton GetInstance(optional bool spawnIfMissing)
 {
-    if (default.activeInstance != none && default.activeInstance.bPendingDelete)
-        return none;
-    return default.activeInstance;
+    local bool instanceExists;
+    instanceExists =    default.activeInstance != none
+                    &&  !default.activeInstance.bPendingDelete;
+    if (instanceExists) {
+        return default.activeInstance;
+    }
+    if (spawnIfMissing) {
+        return class'Acedia'.static.GetInstance().Spawn(default.class);
+    }
+    return none;
 }
 
 public final static function bool IsSingletonCreationBlocked()
