@@ -70,6 +70,13 @@ var private array< class<Listener> > listeners;
 
 var public const class<Listener> relatedListener;
 
+//  Even class can also auto-spawn a `Service`,
+//  in case it's require to generate events
+var public const class<Service> connectedServiceClass;
+//  Set this to `true`if you want `connectedServiceClass` service to also
+//  auto-shutdown whenever no-one listens to the events.
+var public const bool           shutDownServiceWithoutListeners;
+
 static public final function array< class<Listener> > GetListeners()
 {
     return default.listeners;
@@ -83,10 +90,15 @@ static public final function bool ActivateListener(class<Listener> newListener)
     if (newListener == none)                                    return false;
     if (!ClassIsChildOf(newListener, default.relatedListener))  return false;
 
+    //  Spawn service, if absent
+    if (    default.listeners.length == 0
+        &&  default.connectedServiceClass != none) {
+        default.connectedServiceClass.static.Require();
+    }
+    //  Add listener
     for (i = 0;i < default.listeners.length;i += 1)
     {
-        if (default.listeners[i] == newListener)
-        {
+        if (default.listeners[i] == newListener) {
             return false;
         }
     }
@@ -99,17 +111,31 @@ static public final function bool ActivateListener(class<Listener> newListener)
 static public final function bool DeactivateListener(class<Listener> listener)
 {
     local int i;
+    local bool removedListener;
+    local Service service;
     if (listener == none) return false;   
- 
+
+    //  Remove listener
     for (i = 0; i < default.listeners.length; i += 1)
     {
         if (default.listeners[i] == listener)
         {
             default.listeners.Remove(i, 1);
-            return true;
+            removedListener = true;
+            break;
         }
     }
-    return false;
+    //  Remove unneeded service
+    if (    default.shutDownServiceWithoutListeners
+        &&  default.listeners.length == 0
+        &&  default.connectedServiceClass != none)
+    {
+        service = Service(default.connectedServiceClass.static.GetInstance());
+        if (service != none) {
+            service.Destroy();
+        }
+    }
+    return removedListener;
 }
 
 static public final function bool IsActiveListener(class<Listener> listener)
