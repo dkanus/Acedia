@@ -139,4 +139,5 @@ event Tick(float delta)
 defaultproperties
 {
     events = class'ConnectionEvents'
+    requiredListeners(0) = class'MutatorListener_Connection'
 }
