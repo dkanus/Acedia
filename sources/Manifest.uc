@@ -24,16 +24,19 @@
     abstract;
 
 //  List of features in this manifest's package.
-var public const array< class<Feature> >    features;
+var public const array< class<AliasSource> >    aliasSources;
 
 //  List of features in this manifest's package.
-var public const array< class<TestCase> >   testCases;
+var public const array< class<Feature> >        features;
 
-//  Listeners listed here will be automatically activated.
-var public const array< class<Listener> >   requiredListeners;
+//  List of features in this manifest's package.
+var public const array< class<TestCase> >       testCases;
 
 defaultproperties
 {
+    aliasSources(0) = class'AliasSource'
+    aliasSources(1) = class'WeaponAliasSource'
+    aliasSources(2) = class'ColorAliasSource'
     features(0) = class'FixZedTimeLags'
     features(1) = class'FixDoshSpam'
     features(2) = class'FixFFHack'
@@ -42,9 +45,11 @@ defaultproperties
     features(5) = class'FixSpectatorCrash'
     features(6) = class'FixDualiesCost'
     features(7) = class'FixInventoryAbuse'
-    //  Listeners
-    requiredListeners(0) = class'MutatorListener_Connection'
     //  Unit tests
-    testCases(0) = class'TEST_JSON'
-    testCases(1) = class'TEST_Aliases'
+    testCases(0) = class'TEST_Aliases'
+    testCases(1) = class'TEST_ColorAPI'
+    testCases(2) = class'TEST_JSON'
+    testCases(3) = class'TEST_Text'
+    testCases(4) = class'TEST_TextAPI'
+    testCases(5) = class'TEST_Parser'
 }
